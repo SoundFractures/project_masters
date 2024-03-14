@@ -1,58 +1,57 @@
-from Orange.data import Table
-from Orange.widgets import gui
-from Orange.widgets.settings import Setting
-from Orange.widgets.widget import OWWidget, Input, Output, Msg
+import numpy as np
+import Orange.data
+from orangewidget.widget import OWBaseWidget, Input, Output
+from orangewidget.utils.widgetpreview import WidgetPreview
+from orangewidget import gui
+
+from orangehitl.interactive.cart.cart import (
+    train_cart_model,
+)  # Importing the function from cart.py
 
 
-class MyWidget(OWWidget):
-    # Widget needs a name, or it is considered an abstract widget
-    # and not shown in the menu.
-    name = "Hello Interactive"
-    description = "First iteration - copy from example."
+class OWDataSamplerA(OWBaseWidget):
+    name = "Interactive"
+    description = "Banana description"
     icon = "icons/interactive.svg"
-    priority = 100  # where in the widget order it will appear
-    keywords = ["widget", "data"]
-    want_main_area = False
-    resizing_enabled = False
-
-    label = Setting("")
+    priority = 10
 
     class Inputs:
-        # specify the name of the input and the type
-        data = Input("Data", Table)
+        data = Input("Data", Orange.data.Table)
 
     class Outputs:
-        # if there are two or more outputs, default=True marks the default output
-        data = Output("Data", Table, default=True)
+        sample = Output("Sampled Data", Orange.data.Table)
 
-    # same class can be initiated for Error and Information messages
-    class Warning(OWWidget.Warning):
-        warning = Msg("My warning!")
+    want_main_area = False
 
     def __init__(self):
         super().__init__()
-        self.data = None
 
-        self.label_box = gui.lineEdit(
-            self.controlArea, self, "label", box="Text", callback=self.commit
+        # GUI
+        box = gui.widgetBox(self.controlArea, "Info")
+        self.infoa = gui.widgetLabel(
+            box, "No data on input yet, waiting to get something."
         )
+        self.infob = gui.widgetLabel(box, "")
 
     @Inputs.data
-    def set_data(self, data):
-        if data:
-            self.data = data
+    def set_data(self, dataset):
+        if dataset is not None:
+            # Preprocess data if needed
+            X = dataset.X
+            y = dataset.Y
+
+            # Train CART model
+            cart_model = train_cart_model(X, y)
+
+            # Do something with the trained model
+            # For example, print the feature importances
+            print("Feature Importances:", cart_model.feature_importances_)
+
         else:
-            self.data = None
-
-    def commit(self):
-        self.Outputs.data.send(self.data)
-
-    def send_report(self):
-        # self.report_plot() includes visualizations in the report
-        self.report_caption(self.label)
+            self.infoa.setText("No data on input yet, waiting to get something.")
+            self.infob.setText("")
+            self.Outputs.sample.send("Sampled Data")
 
 
 if __name__ == "__main__":
-    from Orange.widgets.utils.widgetpreview import WidgetPreview  # since Orange 3.20.0
-
-    WidgetPreview(MyWidget).run()
+    WidgetPreview(OWDataSamplerA).run(Orange.data.Table("iris"))

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 NAME = "Orange3 Interactive Tree Builder"
 DESCRIPTION = "HITL supported tree builder for Orange3"
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 NAMESPACE_PACKAGES = ["orangehitl"]
 
 PACKAGES = find_packages()
