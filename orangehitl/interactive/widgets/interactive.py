@@ -9,7 +9,7 @@ from orangehitl.interactive.cart.cart import (
 )  # Importing the function from cart.py
 
 
-class OWDataSamplerA(OWBaseWidget):
+class OWInteractive(OWBaseWidget):
     name = "Interactive"
     description = "Interactive description"
     icon = "icons/interactive.svg"
@@ -66,4 +66,4 @@ class OWDataSamplerA(OWBaseWidget):
 
 
 if __name__ == "__main__":
-    WidgetPreview(OWDataSamplerA).run(Orange.data.Table("iris"))
+    WidgetPreview(OWInteractive).run(Orange.data.Table("iris"))
